@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular-sanitize.min.js"></script>
+        <script src="query-builder-directive.js"></script>
+        <script src="solr-query-builder.js"></script>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link href="css/styles.css" rel="stylesheet">
+    </head>
+    <script>
+        var myApp = angular.module('myApp');
+
+        myApp.factory('SolrQueryBuilder', function ($window) {
+            if (!$window.Query) {
+                console.error("cant load solrquery builder");
+                return null;
+            }
+
+            return $window.Query;
+        });
+
+        myApp.controller('myCtrl', function($scope, SolrQueryBuilder) {
+            var q = new SolrQueryBuilder();
+            q
+                .where("user.screen_name").in(["mustafadinmezh1", "atlantis"])
+                .where("timestamp_ms").between(Date.now(), Date.now() - 1000 * 60 * 60 * 24 * 100);
+            $scope.q = q;
+
+            var data = '{"group": {"operator": "AND","rules": []}}';
+
+            function htmlEntities(str) {
+                return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            function computed(group) {
+                if (!group) return "";
+                for (var str = "(", i = 0; i < group.rules.length; i++) {
+                    i > 0 && (str += " <strong>" + group.operator + "</strong> ");
+                    str += group.rules[i].group ?
+                        computed(group.rules[i].group) :
+                        group.rules[i].field + " " + htmlEntities(group.rules[i].condition) + " " + group.rules[i].data;
+                }
+
+                return str + ")";
+            }
+
+            $scope.json = null;
+
+            $scope.filter = JSON.parse(data);
+
+            $scope.$watch('filter', function (newValue) {
+                $scope.json = JSON.stringify(newValue, null, 2);
+                $scope.output = computed(newValue.group);
+            }, true);
+        });
+    </script>
+    <body ng-app="myApp" ng-controller="myCtrl">
+        <div class="alert alert-info">
+            <strong>Solr Query</strong><br>
+                {{q.build()}}
+        </div>
+
+        <div class="alert alert-info">
+            <strong>Query Builder Output</strong><br>
+            <span ng-bind-html="json"></span>
+        </div>
+
+        <div>
+            <query-builder group="filter.group"></query-builder>
+        </div>
+    </body>
+</html>
