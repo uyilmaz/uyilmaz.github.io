@@ -21,53 +21,65 @@
         });
 
         myApp.controller('myCtrl', function($scope, SolrQueryBuilder) {
-            var q = new SolrQueryBuilder();
+            /*var q = new SolrQueryBuilder();
             q
                 .where("user.screen_name").in(["mustafadinmezh1", "atlantis"])
                 .where("timestamp_ms").between(Date.now(), Date.now() - 1000 * 60 * 60 * 24 * 100);
-            $scope.q = q;
+            $scope.q = q;*/
+            $scope.savedFilters = [];
 
-            var data = '{"group": {"operator": "AND","rules": []}}';
-
-            function htmlEntities(str) {
-                return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            $scope.saveCurrentFilter = function() {
+                $scope.savedFilters.push(angular.copy($scope.filter));
             }
 
-            function computed(group) {
-                if (!group) return "";
-                for (var str = "(", i = 0; i < group.rules.length; i++) {
-                    i > 0 && (str += " <strong>" + group.operator + "</strong> ");
-                    str += group.rules[i].group ?
-                        computed(group.rules[i].group) :
-                        group.rules[i].field + " " + htmlEntities(group.rules[i].condition) + " " + group.rules[i].data;
+            $scope.restorePrevFilter = function() {
+                if($scope.savedFilters.length) {
+                    $scope.filter = $scope.savedFilters.pop();
                 }
-
-                return str + ")";
             }
 
-            $scope.json = null;
+            $scope.removeCurrentFilter = function() {
+                $scope.filter = JSON.parse('{"group": {"operator": "AND","rules": []}}');
+            }
 
-            $scope.filter = JSON.parse(data);
+            $scope.filter = JSON.parse('{"group": {"operator": "AND","rules": []}}');
 
             $scope.$watch('filter', function (newValue) {
-                $scope.json = JSON.stringify(newValue, null, 2);
-                $scope.output = computed(newValue.group);
+                $scope.q = q = new SolrQueryBuilder();
+                console.log(newValue);
             }, true);
         });
     </script>
-    <body ng-app="myApp" ng-controller="myCtrl">
+    <body ng-app="myApp" ng-controller="myCtrl" style="margin: 50px;">
         <div class="alert alert-info">
             <strong>Solr Query</strong><br>
                 {{q.build()}}
         </div>
 
-        <div class="alert alert-info">
-            <strong>Query Builder Output</strong><br>
-            <span ng-bind-html="json"></span>
+        <div class="alert alert-info col-md-6">
+            <strong class="col-md-11">Query Builder's Output</strong><br>
+            <pre>{{filter | json}}</pre>
         </div>
 
-        <div>
-            <query-builder group="filter.group"></query-builder>
+        <div class="alert alert-info col-md-6">
+            <div class="row">
+                <strong class="col-md-8">Query Builder</strong>
+                <div class="col-md-4">
+                    <div class="pull-right">
+                        <button class="btn btn-sm btn-success">
+                                <span class="glyphicon glyphicon-save" ng-click="saveCurrentFilter()"></span>
+                        </button>
+                        <button class="btn btn-sm btn-info" ng-click="restorePrevFilter()">
+                                <span class="glyphicon glyphicon-repeat"></span>
+                                <u>{{savedFilters.length}}</u>
+                        </button>
+                        <button class="btn btn-sm btn-danger">
+                                <span class="glyphicon glyphicon-remove" ng-click="removeCurrentFilter()"></span>
+                        </button>
+                    </div>
+                </div>
+                <query-builder class="col-md-12" group="filter.group"></query-builder>
+            </div>
         </div>
     </body>
 </html>

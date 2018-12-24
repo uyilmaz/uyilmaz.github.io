@@ -25,18 +25,22 @@ angular.module("myApp").directive('queryBuilder', ['$compile', function ($compil
                 ];
 
                 scope.conditions = [
-                    { name: '=' },
-                    { name: '<>' },
-                    { name: '<' },
-                    { name: '<=' },
-                    { name: '>' },
-                    { name: '>=' }
+                    { name: "equals" },
+                    { name: "in" },
+                    { name: "or" },
+                    { name: "any" },
+                    { name: "between" },
+                    //{ name: "betweenWithOpenIntervals" },
+                    { name: "lt" },
+                    { name: "gt" },
+                    { name: "lte" },
+                    { name: "gte" }
                 ];
 
                 scope.addCondition = function () {
                     scope.group.rules.push({
-                        condition: '=',
-                        field: 'Firstname',
+                        condition: scope.conditions[0].name,
+                        field: scope.fields[0].name,
                         data: ''
                     });
                 };
@@ -48,7 +52,7 @@ angular.module("myApp").directive('queryBuilder', ['$compile', function ($compil
                 scope.addGroup = function () {
                     scope.group.rules.push({
                         group: {
-                            operator: 'AND',
+                            operator: scope.operators[0].name,
                             rules: []
                         }
                     });
