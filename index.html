@@ -26,6 +26,19 @@
                 .where("user.screen_name").in(["mustafadinmezh1", "atlantis"])
                 .where("timestamp_ms").between(Date.now(), Date.now() - 1000 * 60 * 60 * 24 * 100);
             $scope.q = q;*/
+            /*function recur(q) {
+                q.where();
+                if (q.group.operator == "AND") {
+                    q.group.rules
+                        .filter(rule => !rule.group)
+                        .forEach(function(conditionRule) {
+                            if(conditionRule.condition == "equals") {
+                                
+                            }
+                        })
+                }
+            };*/
+
             $scope.savedFilters = [];
 
             $scope.saveCurrentFilter = function() {
@@ -44,9 +57,9 @@
 
             $scope.filter = JSON.parse('{"group": {"operator": "AND","rules": []}}');
 
-            $scope.$watch('filter', function (newValue) {
+            $scope.$watch('filter', function (qb) {
                 $scope.q = q = new SolrQueryBuilder();
-                console.log(newValue);
+                
             }, true);
         });
     </script>
