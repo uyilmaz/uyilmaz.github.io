@@ -23,7 +23,21 @@
         myApp.controller('myCtrl', function($scope, SolrQueryBuilder) {
 
             function mapCondition(cond, q, field, data) {
-                if(cond.match(/^(any|between)$/)) return;
+                if(cond == "between") {
+                    data = data.split(",");
+                    q.where(field).between(data[0], data[1]);
+                    return;
+                }
+
+                if(cond == "any") {
+                    data = data.split(",");
+                    q.where(field).any(data);
+                    return;
+                }
+
+                if(cond == "or") {
+                    q.where()
+                }
 
                 q.where(field)[cond](data);
             }
@@ -35,7 +49,9 @@
                     console.log(group);
                 }
                 q.begin();
-                rules.forEach(rule => {
+                rules.forEach((rule, i) => {
+                    if(op == "OR" && i > 0) q.or();
+
                     if(rule.group) {
                         mapGroup(rule.group, q);
                     }
