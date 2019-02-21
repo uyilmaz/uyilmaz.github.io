@@ -21,23 +21,31 @@
         });
 
         myApp.controller('myCtrl', function($scope, SolrQueryBuilder) {
-            /*var q = new SolrQueryBuilder();
-            q
-                .where("user.screen_name").in(["mustafadinmezh1", "atlantis"])
-                .where("timestamp_ms").between(Date.now(), Date.now() - 1000 * 60 * 60 * 24 * 100);
-            $scope.q = q;*/
-            /*function recur(q) {
-                q.where();
-                if (q.group.operator == "AND") {
-                    q.group.rules
-                        .filter(rule => !rule.group)
-                        .forEach(function(conditionRule) {
-                            if(conditionRule.condition == "equals") {
-                                
-                            }
-                        })
+
+            function mapCondition(cond, q, field, data) {
+                if(cond.match(/^(any|between)$/)) return;
+
+                q.where(field)[cond](data);
+            }
+
+            function mapGroup(group, q) {
+                let op = group.operator;
+                let rules = group.rules;
+                if(rules === undefined) {
+                    console.log(group);
                 }
-            };*/
+                q.begin();
+                rules.forEach(rule => {
+                    if(rule.group) {
+                        mapGroup(rule.group, q);
+                    }
+
+                    if(rule.condition) {
+                        mapCondition(rule.condition, q, rule.field, rule.data);
+                    }
+                });
+                q.end();
+            }
 
             $scope.savedFilters = [];
 
@@ -59,7 +67,7 @@
 
             $scope.$watch('filter', function (qb) {
                 $scope.q = q = new SolrQueryBuilder();
-                
+                mapGroup($scope.filter.group, q);
             }, true);
         });
     </script>

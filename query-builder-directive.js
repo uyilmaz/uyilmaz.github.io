@@ -1,6 +1,5 @@
 angular.module('myApp',["ngSanitize"]);
 angular.module("myApp").directive('queryBuilder', ['$compile', function ($compile) {
-    console.log("runnding directiv");
     return {
         restrict: 'E',
         scope: {
@@ -27,7 +26,7 @@ angular.module("myApp").directive('queryBuilder', ['$compile', function ($compil
                 scope.conditions = [
                     { name: "equals" },
                     { name: "in" },
-                    { name: "or" },
+                    //{ name: "or" },
                     { name: "any" },
                     { name: "between" },
                     //{ name: "betweenWithOpenIntervals" },
