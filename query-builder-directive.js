@@ -16,18 +16,18 @@ angular.module("myApp").directive('queryBuilder', ['$compile', function ($compil
                 ];
 
                 scope.fields = [
-                    { name: 'Firstname' },
-                    { name: 'Lastname' },
-                    { name: 'Birthdate' },
-                    { name: 'City' },
-                    { name: 'Country' }
+                    { name: 'user.screen_name' },
+                    { name: 'user.id' },
+                    { name: 'text' },
+                    { name: 'timestamp_s' },
+                    { name: 'entities.hashtags.text' }
                 ];
 
                 scope.conditions = [
                     { name: "equals" },
                     { name: "in" },
                     //{ name: "or" },
-                    { name: "any" },
+                    //{ name: "any" },
                     { name: "between" },
                     //{ name: "betweenWithOpenIntervals" },
                     { name: "lt" },

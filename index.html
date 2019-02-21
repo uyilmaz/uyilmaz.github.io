@@ -29,14 +29,18 @@
                     return;
                 }
 
+                //buggy
                 if(cond == "any") {
-                    data = data.split(",");
+                    //data = data.split(",");
                     q.where(field).any(data);
                     return;
                 }
 
+                //buggy
                 if(cond == "or") {
-                    q.where()
+                    q.or();
+                    q.where(field).any(data);
+                    return;
                 }
 
                 q.where(field)[cond](data);
